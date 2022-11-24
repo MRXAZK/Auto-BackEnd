@@ -7,8 +7,8 @@ from fastapi.security import (
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from config.database import conn
-from models.user.m_user import User as datauser
-import schemas.user.s_user as schema
+from models.credentials.m_credentials import Profile as dataprofile
+import schemas.credentials.s_credentials as schema
 
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -30,7 +30,7 @@ def get_password_hash(password):
 
 def get_user(username: str):
     # get data from database
-    query = datauser.select()
+    query = dataprofile.select()
     data = conn.execute(query).fetchone()
     if data is None:
         return None
@@ -39,7 +39,7 @@ def get_user(username: str):
     return user
 
 def add_user(username: str, password: str, email: str, full_name: str):
-    query = datauser.insert().values(
+    query = dataprofile.insert().values(
         username = username,
         full_name = full_name,
         email = email,
@@ -49,29 +49,11 @@ def add_user(username: str, password: str, email: str, full_name: str):
     conn.execute(query)
     return True
 
-def check_exist(username: str):
+def get_all_credentials(id_user: int):
     # get data from database
-    query = datauser.select().filter(datauser.c.username == username)
+    query = dataprofile.select().filter(dataprofile.c.id_user == id_user)
     data = conn.execute(query).fetchone()
     if data is None:
         return None
     return data
 
-def authenticate_user(username: str, password: str):
-    user = get_user(username)
-    if not user:
-        return False
-    if not verify_password(password, user.hashed_password):
-        return False
-    return user
-
-
-def create_access_token(data: dict, expires_delta: Union[timedelta, None] = None):
-    to_encode = data.copy()
-    if expires_delta:
-        expire = datetime.utcnow() + expires_delta
-    else:
-        expire = datetime.utcnow() + timedelta(minutes=15)
-    to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, schema.SECRET_KEY, algorithm=schema.ALGORITHM)
-    return encoded_jwt

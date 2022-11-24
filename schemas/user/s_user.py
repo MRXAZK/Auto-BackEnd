@@ -103,6 +103,9 @@ async def create_user(usr: UserCreate, response: Response):
             }
             
         add_user(usr.username, usr.password, usr.email, usr.full_name)
-        
+        response = {
+            "message" : f"Success add new data data",
+        }
+        return response         
         
     

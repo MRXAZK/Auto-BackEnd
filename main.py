@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware  
-from routes.login import login
+from routes.r_users import login
+from routes.r_credentials import credential
+
 
 app = FastAPI()
 
@@ -22,3 +24,5 @@ async def root():
     }
     
 app.include_router(login)
+app.include_router(credential)
+
