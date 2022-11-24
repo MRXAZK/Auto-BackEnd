@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from typing import Union
-
+from fastapi import Response, status
 from fastapi.security import (
     OAuth2PasswordBearer,
 )
@@ -37,6 +37,30 @@ def get_user(username: str):
     user_dict = dict(data)
     user = schema.UserInDB(**user_dict)
     return user
+
+def add_user(username: str, password: str, email: str, full_name: str):
+    query = datauser.insert().values(
+        username = username,
+        full_name = full_name,
+        email = email,
+        hashed_password = get_password_hash(password),
+        disabled = False
+    )
+    
+    conn.execute(query)
+    data = datauser.select().order_by(datauser.c.id_user.desc())
+    response = {
+        "message" : f"Success add new data data", "data": conn.execute(data).fetchone()
+    }
+    return response
+
+def check_exist(username: str):
+    # get data from database
+    query = datauser.select().filter(datauser.c.username == username)
+    data = conn.execute(query).fetchone()
+    if data is None:
+        return None
+    return data
 
 def authenticate_user(username: str, password: str):
     user = get_user(username)
