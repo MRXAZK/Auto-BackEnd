@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware  
-from routes.user.login import login
+from routes.login import login
 
 app = FastAPI()
 
@@ -17,7 +17,7 @@ def cors_headers(app):
 @app.get("/", tags=["Root"])
 async def root():
     return {
-        "Message": "Codename - Neural",
+        "Message": "Auto - BackEnd",
         "Author" : "Farhan Aulianda"
     }
     
