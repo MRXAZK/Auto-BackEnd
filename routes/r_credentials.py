@@ -1,22 +1,20 @@
-from datetime import timedelta
-
-from fastapi import Depends, APIRouter, HTTPException, Security
-from fastapi.security import (
-    OAuth2PasswordRequestForm,
-)
-from schemas.credentials.s_credentials import create_profile, get_profile
-from schemas.credentials.s_credentials import Credentials
+from fastapi import Depends, APIRouter, Response, status
+from schemas.user.s_user import User
+from functions.f_user import get_current_user
+from functions.f_credentials import get_all_credentials
 
 credential = APIRouter()
 
+@credential.get("/credentials/profile", tags=["Credentials"])
+async def get_credentials(current_user: User = Depends(get_current_user)):
+    data =  get_all_credentials(current_user.id_user)
+    if data is None:
+        response = Response(status_code=status.HTTP_404_NOT_FOUND)
+        return {
+            "status": response.status_code, 
+            "message": "No Profile Found"
+        }
+    return data
 
-@credential.post("/credentials/profile", description="Add Data", tags=["Credentials"])
-async def add_credentials(current_user: Credentials = Depends(create_profile)):
-    return current_user
-
-
-@credential.get("/credentials/profile", response_model=Credentials, tags=["Credentials"])
-async def get_credentials(current_user: Credentials = Depends(get_profile)):
-    return current_user
 
 
